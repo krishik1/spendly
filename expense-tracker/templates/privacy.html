@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy — Spendly{% endblock %}
+
+{% block head %}
+<style>
+    .privacy-container {
+        padding: 3rem 2rem;
+        background: var(--paper);
+    }
+
+    .privacy-inner {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .privacy-inner > h1 {
+        font-family: var(--font-display);
+        font-size: clamp(1.75rem, 4vw, 2.5rem);
+        color: var(--ink);
+        line-height: 1.2;
+        margin-bottom: 0.5rem;
+    }
+
+    .last-updated {
+        font-size: 0.85rem;
+        color: var(--ink-muted);
+        margin-bottom: 2.5rem;
+        font-weight: 500;
+    }
+
+    .privacy-section {
+        margin-bottom: 2.5rem;
+    }
+
+    .privacy-section h2 {
+        font-family: var(--font-display);
+        font-size: 1.35rem;
+        color: var(--ink);
+        margin-bottom: 1rem;
+        margin-top: 0;
+    }
+
+    .privacy-section p {
+        font-size: 0.95rem;
+        color: var(--ink-soft);
+        line-height: 1.75;
+        margin-bottom: 1rem;
+    }
+
+    .privacy-section ul {
+        list-style: none;
+        margin-left: 0;
+        margin-bottom: 1rem;
+    }
+
+    .privacy-section li {
+        font-size: 0.95rem;
+        color: var(--ink-soft);
+        line-height: 1.75;
+        margin-bottom: 0.6rem;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+
+    .privacy-section li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: var(--accent);
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="privacy-container">
+    <div class="privacy-inner">
+        <h1>Privacy Policy</h1>
+        <p class="last-updated">Last updated: September 2026</p>
+
+        <section class="privacy-section">
+            <h2>1. Introduction</h2>
+            <p>
+                Spendly ("we," "us," "our," or "Company") is committed to protecting your privacy. This 
+                Privacy Policy explains how we collect, use, disclose, and safeguard your information when 
+                you use our personal expense tracking application and website.
+            </p>
+            <p>
+                Please read this Privacy Policy carefully. If you do not agree with our policies and 
+                practices, please do not use our Service.
+            </p>
+        </section>
+
+        <section class="privacy-section">
+            <h2>2. Data We Collect</h2>
+            <p>
+                We collect information you provide directly to us, such as when you create an account, 
+                log in, or update your profile. This information includes:
+            </p>
+            <ul>
+                <li>Account information: name, email address, and password</li>
+                <li>Profile information: optional avatar, preferences, and settings</li>
+                <li>Expense data: amounts, categories, dates, descriptions, and tags</li>
+                <li>Transaction history: records of all expenses you log in the application</li>
+            </ul>
+            <p>
+                We also automatically collect certain information when you use the Service:
+            </p>
+            <ul>
+                <li>Device information: browser type, IP address, and device identifiers</li>
+                <li>Usage data: pages visited, features used, and time spent in the application</li>
+                <li>Log data: error messages, service performance, and access logs</li>
+            </ul>
+        </section>
+
+        <section class="privacy-section">
+            <h2>3. How We Use Your Data</h2>
+            <p>
+                We use the information we collect for the following purposes:
+            </p>
+            <ul>
+                <li>To provide and maintain the Service and improve its functionality</li>
+                <li>To authenticate your account and ensure security</li>
+                <li>To process your expense tracking requests and generate summaries and reports</li>
+                <li>To respond to your inquiries and provide customer support</li>
+                <li>To send you technical notices, updates, and support messages</li>
+                <li>To monitor and analyze trends, usage, and activities for service improvement</li>
+                <li>To detect, prevent, and address fraud, security issues, and technical problems</li>
+            </ul>
+            <p>
+                We will never sell your expense data or personal information to third parties for 
+                marketing purposes.
+            </p>
+        </section>
+
+        <section class="privacy-section">
+            <h2>4. Data Storage and Security</h2>
+            <p>
+                Your data is stored on secure servers with appropriate physical and technical security 
+                measures in place. We use industry-standard encryption (SSL/TLS) to protect data in transit 
+                and implement access controls to restrict who can view your information.
+            </p>
+            <p>
+                However, no security system is impenetrable. While we employ robust security measures, 
+                we cannot guarantee absolute security of your data. You are responsible for maintaining 
+                the confidentiality of your account credentials.
+            </p>
+            <p>
+                You may request deletion of your account and all associated data at any time by contacting 
+                us. We will delete your personal information within 30 days of receiving a verified deletion 
+                request.
+            </p>
+        </section>
+
+        <section class="privacy-section">
+            <h2>5. Third-Party Services</h2>
+            <p>
+                Spendly may use third-party service providers to assist us in operating our website and 
+                conducting our business. These third parties may have access to your information only as 
+                necessary to perform their specific functions and are contractually obligated to keep your 
+                information confidential.
+            </p>
+            <p>
+                We do not permit third-party service providers to:
+            </p>
+            <ul>
+                <li>Retain, share, or use your personally identifiable information for any purpose other than as necessary to provide services to us</li>
+                <li>Combine your information with information from other sources</li>
+                <li>Market their own services to you using your personal information</li>
+            </ul>
+            <p>
+                We currently do not integrate with third-party financial institutions or services. Any 
+                future integrations will be clearly disclosed and will require your explicit consent.
+            </p>
+        </section>
+
+        <section class="privacy-section">
+            <h2>6. Cookies and Tracking</h2>
+            <p>
+                We use cookies and similar tracking technologies to enhance your experience and understand 
+                how users interact with our Service. Cookies are small files stored on your device that 
+                help us remember your preferences and track your session.
+            </p>
+            <p>
+                You can control cookie settings through your browser. However, disabling cookies may affect 
+                the functionality of the Service.
+            </p>
+        </section>
+
+        <section class="privacy-section">
+            <h2>7. Your Privacy Rights</h2>
+            <p>
+                Depending on your location, you may have certain rights regarding your personal information, 
+                including:
+            </p>
+            <ul>
+                <li>The right to access your personal data</li>
+                <li>The right to correct inaccurate data</li>
+                <li>The right to request deletion of your data</li>
+                <li>The right to opt-out of certain data collection practices</li>
+                <li>The right to data portability (receiving your data in a structured format)</li>
+            </ul>
+            <p>
+                To exercise any of these rights, please contact us using the information provided below.
+            </p>
+        </section>
+
+        <section class="privacy-section">
+            <h2>8. Children's Privacy</h2>
+            <p>
+                Spendly is not intended for children under 13 years of age. We do not knowingly collect 
+                personal information from children under 13. If we become aware that a child under 13 has 
+                provided us with personal information, we will delete such information immediately.
+            </p>
+        </section>
+
+        <section class="privacy-section">
+            <h2>9. Changes to This Privacy Policy</h2>
+            <p>
+                We may update this Privacy Policy from time to time to reflect changes in our practices, 
+                technology, legal requirements, or other factors. We will notify you of any material changes 
+                by posting the new Privacy Policy on the Service and updating the "Last updated" date above.
+            </p>
+            <p>
+                Your continued use of the Service following the posting of a revised Privacy Policy means 
+                that you accept and agree to the changes.
+            </p>
+        </section>
+
+        <section class="privacy-section">
+            <h2>10. Contact Us</h2>
+            <p>
+                If you have questions about this Privacy Policy or our privacy practices, please contact us at:
+            </p>
+            <p>
+                <strong>Email:</strong> privacy@spendly.app<br>
+                <strong>Address:</strong> Spendly Support Team
+            </p>
+            <p>
+                We will respond to any privacy inquiries within 30 days of receiving your request.
+            </p>
+        </section>
+    </div>
+</section>
+
+{% endblock %}
