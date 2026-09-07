@@ -17,7 +17,7 @@
         </p>
         <div class="hero-actions">
             <a href="{{ url_for('register') }}" class="btn-primary">Create free account</a>
-            <a href="#" class="btn-ghost">See how it works</a>
+            <button id="modal-trigger" class="btn-ghost">See how it works</button>
         </div>
     </div>
     <div class="hero-visual">
@@ -94,4 +94,55 @@
     </div>
 </section>
 
+<!-- Video Modal -->
+<div id="video-modal" class="modal" style="display: none;">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+        <button id="modal-close" class="modal-close">&times;</button>
+        <div class="modal-video-container">
+            <iframe 
+                id="modal-video" 
+                class="modal-video" 
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                title="Spendly Demo" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+            </iframe>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Modal functionality
+    const modalTrigger = document.getElementById('modal-trigger');
+    const modal = document.getElementById('video-modal');
+    const modalClose = document.getElementById('modal-close');
+    const modalOverlay = document.querySelector('.modal-overlay');
+    const modalVideo = document.getElementById('modal-video');
+
+    // Open modal
+    modalTrigger.addEventListener('click', (e) => {
+        e.preventDefault();
+        modal.style.display = 'flex';
+    });
+
+    // Close modal function
+    function closeModal() {
+        modal.style.display = 'none';
+        // Stop video by resetting its src
+        const videoSrc = modalVideo.src;
+        modalVideo.src = '';
+        modalVideo.src = videoSrc;
+    }
+
+    // Close modal when close button is clicked
+    modalClose.addEventListener('click', closeModal);
+
+    // Close modal when overlay is clicked
+    modalOverlay.addEventListener('click', closeModal);
+</script>
 {% endblock %}
