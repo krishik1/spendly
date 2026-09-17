@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from datetime import date
 
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -12,6 +13,72 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-producti
 with app.app_context():
     init_db()
     seed_db()
+
+
+# ------------------------------------------------------------------ #
+# Profile helpers                                                    #
+# ------------------------------------------------------------------ #
+
+def _format_currency(amount):
+    return f"₹{amount:,.2f}"
+
+
+def _format_transaction_date(date_str):
+    return date.fromisoformat(date_str).strftime("%d %b %Y")
+
+
+def _get_profile_transactions(db, user_id):
+    rows = db.execute(
+        "SELECT date, description, category, amount FROM expenses "
+        "WHERE user_id = ? ORDER BY date DESC, id DESC",
+        (user_id,),
+    ).fetchall()
+    return [
+        {
+            "date": _format_transaction_date(r["date"]),
+            "description": r["description"],
+            "category": r["category"],
+            "amount_display": _format_currency(r["amount"]),
+        }
+        for r in rows
+    ]
+
+
+def _get_profile_stats(db, user_id):
+    total, count = db.execute(
+        "SELECT COALESCE(SUM(amount), 0), COUNT(*) FROM expenses WHERE user_id = ?",
+        (user_id,),
+    ).fetchone()
+    top = db.execute(
+        "SELECT category FROM expenses WHERE user_id = ? "
+        "GROUP BY category ORDER BY SUM(amount) DESC LIMIT 1",
+        (user_id,),
+    ).fetchone()
+    return {
+        "total_spent_display": _format_currency(total),
+        "transaction_count": count,
+        "top_category": top["category"] if top else "—",
+    }
+
+
+def _get_profile_categories(db, user_id):
+    rows = db.execute(
+        "SELECT category, SUM(amount) AS total FROM expenses "
+        "WHERE user_id = ? GROUP BY category ORDER BY total DESC",
+        (user_id,),
+    ).fetchall()
+    grand_total = sum(r["total"] for r in rows)
+    categories = []
+    for r in rows:
+        pct = round(r["total"] / grand_total * 100) if grand_total else 0
+        bar_step = min(100, max(10, round(pct / 10) * 10))
+        categories.append({
+            "name": r["category"],
+            "amount_display": _format_currency(r["total"]),
+            "percentage": pct,
+            "bar_step": bar_step,
+        })
+    return categories
 
 
 # ------------------------------------------------------------------ #
@@ -108,36 +175,26 @@ def profile():
     if not session.get("user_id"):
         return redirect(url_for("login"))
 
+    db = get_db()
+    row = db.execute(
+        "SELECT name, email, created_at FROM users WHERE id = ?",
+        (session["user_id"],),
+    ).fetchone()
+
+    parts = row["name"].split()
+    initials = "".join(p[0] for p in parts[:2]).upper()
+    member_since = date.fromisoformat(row["created_at"][:10]).strftime("Member since %B %Y")
+
     user = {
-        "name": "Demo User",
-        "email": "demo@spendly.com",
-        "initials": "DU",
-        "member_since": "Member since March 2025",
+        "name": row["name"],
+        "email": row["email"],
+        "initials": initials,
+        "member_since": member_since,
     }
-
-    stats = {
-        "total_spent_display": "₹20,000.00",
-        "transaction_count": 6,
-        "top_category": "Food",
-    }
-
-    transactions = [
-        {"date": "12 Sep 2026", "description": "Grocery shopping at BigBasket", "category": "Food", "amount_display": "₹1,240.00"},
-        {"date": "10 Sep 2026", "description": "Electricity bill - BESCOM", "category": "Bills", "amount_display": "₹2,150.50"},
-        {"date": "08 Sep 2026", "description": "Uber rides to office", "category": "Transport", "amount_display": "₹680.00"},
-        {"date": "06 Sep 2026", "description": "Movie night with friends", "category": "Entertainment", "amount_display": "₹950.00"},
-        {"date": "03 Sep 2026", "description": "New running shoes", "category": "Shopping", "amount_display": "₹3,499.00"},
-        {"date": "01 Sep 2026", "description": "Pharmacy - vitamins & supplements", "category": "Health", "amount_display": "₹610.25"},
-    ]
-
-    categories = [
-        {"name": "Food", "amount_display": "₹6,000.00", "percentage": 30, "bar_step": 30},
-        {"name": "Shopping", "amount_display": "₹4,000.00", "percentage": 20, "bar_step": 20},
-        {"name": "Bills", "amount_display": "₹4,000.00", "percentage": 20, "bar_step": 20},
-        {"name": "Transport", "amount_display": "₹2,000.00", "percentage": 10, "bar_step": 10},
-        {"name": "Entertainment", "amount_display": "₹2,000.00", "percentage": 10, "bar_step": 10},
-        {"name": "Health", "amount_display": "₹2,000.00", "percentage": 10, "bar_step": 10},
-    ]
+    stats = _get_profile_stats(db, session["user_id"])
+    transactions = _get_profile_transactions(db, session["user_id"])
+    categories = _get_profile_categories(db, session["user_id"])
+    db.close()
 
     return render_template(
         "profile.html",
