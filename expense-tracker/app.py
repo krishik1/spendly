@@ -27,11 +27,41 @@ def _format_transaction_date(date_str):
     return date.fromisoformat(date_str).strftime("%d %b %Y")
 
 
-def _get_profile_transactions(db, user_id):
+def _parse_date_filter(args):
+    raw_from = args.get("date_from", "").strip()
+    raw_to = args.get("date_to", "").strip()
+    try:
+        date_from = date.fromisoformat(raw_from) if raw_from else None
+        date_to = date.fromisoformat(raw_to) if raw_to else None
+    except ValueError:
+        return None, None, "Enter valid dates."
+    if date_from and date_to and date_from > date_to:
+        return None, None, "Start date must be on or before end date."
+    return (
+        date_from.isoformat() if date_from else None,
+        date_to.isoformat() if date_to else None,
+        None,
+    )
+
+
+def _date_clause(date_from, date_to):
+    clause = ""
+    params = []
+    if date_from:
+        clause += " AND date >= ?"
+        params.append(date_from)
+    if date_to:
+        clause += " AND date <= ?"
+        params.append(date_to)
+    return clause, tuple(params)
+
+
+def _get_profile_transactions(db, user_id, date_from=None, date_to=None):
+    clause, params = _date_clause(date_from, date_to)
     rows = db.execute(
         "SELECT date, description, category, amount FROM expenses "
-        "WHERE user_id = ? ORDER BY date DESC, id DESC",
-        (user_id,),
+        "WHERE user_id = ?" + clause + " ORDER BY date DESC, id DESC",
+        (user_id, *params),
     ).fetchall()
     return [
         {
@@ -44,15 +74,16 @@ def _get_profile_transactions(db, user_id):
     ]
 
 
-def _get_profile_stats(db, user_id):
+def _get_profile_stats(db, user_id, date_from=None, date_to=None):
+    clause, params = _date_clause(date_from, date_to)
     total, count = db.execute(
-        "SELECT COALESCE(SUM(amount), 0), COUNT(*) FROM expenses WHERE user_id = ?",
-        (user_id,),
+        "SELECT COALESCE(SUM(amount), 0), COUNT(*) FROM expenses WHERE user_id = ?" + clause,
+        (user_id, *params),
     ).fetchone()
     top = db.execute(
-        "SELECT category FROM expenses WHERE user_id = ? "
-        "GROUP BY category ORDER BY SUM(amount) DESC LIMIT 1",
-        (user_id,),
+        "SELECT category FROM expenses WHERE user_id = ?" + clause +
+        " GROUP BY category ORDER BY SUM(amount) DESC LIMIT 1",
+        (user_id, *params),
     ).fetchone()
     return {
         "total_spent_display": _format_currency(total),
@@ -61,11 +92,12 @@ def _get_profile_stats(db, user_id):
     }
 
 
-def _get_profile_categories(db, user_id):
+def _get_profile_categories(db, user_id, date_from=None, date_to=None):
+    clause, params = _date_clause(date_from, date_to)
     rows = db.execute(
         "SELECT category, SUM(amount) AS total FROM expenses "
-        "WHERE user_id = ? GROUP BY category ORDER BY total DESC",
-        (user_id,),
+        "WHERE user_id = ?" + clause + " GROUP BY category ORDER BY total DESC",
+        (user_id, *params),
     ).fetchall()
     grand_total = sum(r["total"] for r in rows)
     categories = []
@@ -191,9 +223,10 @@ def profile():
         "initials": initials,
         "member_since": member_since,
     }
-    stats = _get_profile_stats(db, session["user_id"])
-    transactions = _get_profile_transactions(db, session["user_id"])
-    categories = _get_profile_categories(db, session["user_id"])
+    date_from, date_to, filter_error = _parse_date_filter(request.args)
+    stats = _get_profile_stats(db, session["user_id"], date_from, date_to)
+    transactions = _get_profile_transactions(db, session["user_id"], date_from, date_to)
+    categories = _get_profile_categories(db, session["user_id"], date_from, date_to)
     db.close()
 
     return render_template(
@@ -202,6 +235,10 @@ def profile():
         stats=stats,
         transactions=transactions,
         categories=categories,
+        date_from=date_from or "",
+        date_to=date_to or "",
+        filter_error=filter_error,
+        filter_active=bool(date_from or date_to),
     )
 
 
