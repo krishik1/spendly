@@ -14,6 +14,22 @@
         </div>
     </div>
 
+    <form method="get" action="{{ url_for('profile') }}" class="profile-filter">
+        <div class="profile-filter-field">
+            <label for="date_from">From</label>
+            <input type="date" id="date_from" name="date_from" class="form-input" value="{{ date_from }}">
+        </div>
+        <div class="profile-filter-field">
+            <label for="date_to">To</label>
+            <input type="date" id="date_to" name="date_to" class="form-input" value="{{ date_to }}">
+        </div>
+        <button type="submit" class="btn-submit profile-filter-apply">Apply</button>
+        <a href="{{ url_for('profile') }}" class="btn-ghost">Clear</a>
+    </form>
+    {% if filter_error %}
+    <p class="profile-filter-error">{{ filter_error }}</p>
+    {% endif %}
+
     <div class="profile-stats">
         <div class="profile-stat-card">
             <div class="profile-stat-label">Total spent</div>
@@ -30,7 +46,7 @@
     </div>
 
     <div class="profile-section">
-        <h2 class="profile-section-title">Recent transactions</h2>
+        <h2 class="profile-section-title">{{ "Transactions" if filter_active else "Recent transactions" }}</h2>
         <div class="profile-table-wrap">
             <table class="profile-table">
                 <thead>
@@ -49,6 +65,10 @@
                         <td><span class="category-badge badge-{{ txn.category|lower }}">{{ txn.category }}</span></td>
                         <td class="profile-table-amount">{{ txn.amount_display }}</td>
                     </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="profile-empty">No expenses in this period</td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -66,6 +86,8 @@
                 </div>
                 <span class="profile-breakdown-value">{{ cat.amount_display }} &middot; {{ cat.percentage }}%</span>
             </div>
+            {% else %}
+            <p class="profile-empty">No expenses in this period</p>
             {% endfor %}
         </div>
     </div>
